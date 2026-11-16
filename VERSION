@@ -1,0 +1,146 @@
+commit d1124d71432e05a2d7e8ea5ecbe41333bad0b350
+Author: Frank <8014077+Frank3K@users.noreply.github.com>
+Date:   Mon Nov 16 21:05:33 2026 +0100
+
+    chore(deps): fix npm audit vulnerabilities (68 → 15, no critical/high left) (#5219)
+    
+    * fix(deps): npm audit fix for security advisories
+    
+    Resolves 11 of 68 npm audit findings (68 -> 57; critical 4 -> 3,
+    high 35 -> 28, moderate 24 -> 21). Lockfile-only changes.
+    
+    Fixed advisories:
+    - baseline-browser-mapping: GHSA-w5vr-8v7q-w6rv
+    - brace-expansion: GHSA-3jxr-9vmj-r5cp, GHSA-6j4f-fj2g-mc7p,
+      GHSA-mh99-v99m-4gvg, GHSA-q2hr-2g5m-vwhr, GHSA-qhr7-859c-m2p7,
+      GHSA-rgw5-rvv9-x895
+    - browserslist: GHSA-73wf-gq98-2v4g, GHSA-c83g-rgw3-j3cx
+    - follow-redirects: GHSA-8r9p-f939-6h3c, GHSA-mrwp-f3q8-3g9p,
+      GHSA-q3jh-wrc6-jgq8
+    - ip-address: GHSA-22jq-vg5j-6vgg, GHSA-2vr4-cq9g-pvrc,
+      GHSA-4xrf-jv44-h6hh, GHSA-h3mg-xc3c-68pw, GHSA-j6r3-76f7-8jcv,
+      GHSA-mwp4-54f8-5fhr, GHSA-rpw4-54j3-4h4q, GHSA-rxp7-6hxx-x8q5
+    - js-yaml: GHSA-2883-xcg3-v3hh, GHSA-52cp-r559-cp3m,
+      GHSA-5p4m-2wfm-xmqj
+    - qs: GHSA-4mjr-xmp4-gh2g, GHSA-6pq8-jhm2-2vcw, GHSA-x5fp-wj9c-mxmx
+    - sharp: GHSA-f88m-g3jw-g9cj, GHSA-rgj7-g3m4-5g8c, GHSA-wq5f-xc86-pv6w
+    - shell-quote: GHSA-395f-4hp3-45gv, GHSA-pqg4-j6r4-53mv
+    
+    Also resolved (flagged transitively, no own GHSA): ndarray-pixels (via sharp),
+    rimraf (via glob).
+    
+    * chore(deps): upgrade puppeteer to v25
+    
+    Bump puppeteer from ^24.4.0 to ^25.17.0 (root and render-fidelity-tools).
+    
+    Puppeteer v25 breaking changes and their impact here:
+    - ESM-only packages: render-fidelity-tools is already an ES module
+      ("type": "module") and imports puppeteer via ESM, so no change needed.
+    - executablePath() and defaultArgs() now return a Promise: not used.
+    - Minimum Node.js is now 22: pin actions/setup-node to .nvmrc (Node 24)
+      in all workflows instead of relying on the runner's default Node, and
+      raise render-fidelity-tools' engines.node to >=22.0.0.
+    
+    Verified locally: fidelity tests pass on all 85 scenarios.
+    
+    * chore(deps): upgrade @web/test-runner to v1
+    
+    Bump @web/test-runner from ^0.20.0 to ^1.0.1 and
+    @web/test-runner-playwright from ^0.11.0 to ^1.0.2 in model-viewer,
+    model-viewer-effects and space-opera.
+    
+    The only breaking change in 1.0 is a minimum Node.js of 22, which CI
+    already meets via .nvmrc. No test runner config changes were needed.
+    
+    @web/test-runner-chrome 1.x depends on puppeteer-core ^25, so the old
+    puppeteer-core 24 tree is no longer installed. That removes the hoisted
+    proxy-agent 6.5.0, which conflicted with the optional proxy-agent
+    >=8.0.1 peer of @puppeteer/browsers 3.x, and drops extract-zip.
+    
+    Verified locally: npm run test:ci passes (model-viewer 427 passed,
+    model-viewer-effects 13 passed, space-opera 99 passed).
+    
+    * chore(deps): remove unused polymer-build from render-fidelity-tools
+    
+    polymer-build is listed as a devDependency but is not imported or
+    invoked anywhere (no polymer.json, no scripts). 3.1.4 is its latest
+    release, so its vulnerable dependency tree cannot be fixed by
+    upgrading.
+    
+    Removing it resolves:
+    - babel-traverse: GHSA-67hx-6x53-jw92 (critical)
+    - braces: GHSA-grv7-fg5c-xmjg
+    - cross-spawn: GHSA-3xgq-45jj-v275
+    - html-minifier: GHSA-pfq8-rq6v-vf5m
+    - trim-newlines: GHSA-7p7h-4mm5-852v
+    - rollup 1.x: GHSA-gcx4-mw62-g8wm, GHSA-mw96-cpmx-2vgc
+    - micromatch: GHSA-952p-6rrq-rcjv
+    - got: GHSA-pfrx-2q88-qq97
+    
+    npm audit: 46 -> 26 findings, no critical left.
+    
+    * chore(deps): remove unused remote-redux-devtools from space-opera
+    
+    remote-redux-devtools and @types/remote-redux-devtools are listed as
+    devDependencies but are not imported anywhere. 0.5.16 is the latest
+    release, so its vulnerable dependency tree (redux-devtools-core ->
+    nanoid 2.x, socketcluster-client -> uuid 3.x) cannot be fixed by
+    upgrading.
+    
+    Removing it resolves:
+    - nanoid: GHSA-28wg-ghj8-5hjv, GHSA-2v37-7h3g-55p8,
+      GHSA-xwg4-73v4-xw9w (high), GHSA-mwcw-c2x4-8c55 (moderate)
+    - uuid: GHSA-w5hq-g745-h8pq (moderate; last remaining path)
+    
+    npm audit: 26 -> 21 findings.
+    
+    * chore(deps): upgrade @actions/core to v3 in render-fidelity-tools
+    
+    Bump @actions/core from ^1.11.1 to ^3.0.1. It now pulls in
+    @actions/http-client 4 and undici 6.29.1 instead of
+    @actions/http-client 2 with undici 5 and @fastify/busboy.
+    
+    @actions/core 3 is ESM-only, so test-fidelity.ts now imports it with
+    `import * as core` instead of using createRequire().
+    
+    Resolves:
+    - undici: GHSA-2m5v-pch6-74hx, GHSA-qrxm-fqhp-jwvm,
+      GHSA-vrm6-8vpv-qv8q, GHSA-v9p9-hfj2-hcw8, GHSA-vxpw-j846-p89q (high);
+      GHSA-2mjp-6q6p-2qxm, GHSA-4992-7rv2-5pvq, GHSA-8xcm-r25x-g524,
+      GHSA-9fm3-97px-rjf6, GHSA-g9mf-h72j-4rw9, GHSA-m8rv-5g2x-5cg5,
+      GHSA-p88m-4jfj-68fv, GHSA-v3r7-h72x-cjcm (moderate);
+      GHSA-35p6-xmwp-9g52, GHSA-g8m3-5g58-fq7m, GHSA-r53p-7pc4-xj5r (low)
+    - @fastify/busboy: GHSA-x8mw-p69m-v3mx (high), GHSA-gxm5-99cw-xjw9
+      (moderate)
+    
+    npm audit: 21 -> 18 findings. Fidelity tests pass on all 85 scenarios.
+    
+    * chore(deps): upgrade mocha to v12 and @rollup/plugin-terser to v1
+    
+    Bump mocha from ^11.1.0 to ^12.0.3 and @rollup/plugin-terser from
+    ^0.4.4 to ^1.0.2 in model-viewer and model-viewer-effects. Both
+    pulled in serialize-javascript 6.x, so both must be upgraded for
+    serialize-javascript 7.1.4 to be the only copy.
+    
+    Breaking changes and their impact here:
+    - @rollup/plugin-terser 1.0: requires Node >=20. The default-export
+      usage in the rollup configs is unchanged.
+    - mocha 12: changes to the CLI and ESM internals, with a Node minimum
+      of ^20.19 || >=22.12. The browser tests run through
+      @web/test-runner-mocha, which ships its own mocha.
+    
+    Resolves:
+    - serialize-javascript: GHSA-5c6j-r48x-rmvq (high),
+      GHSA-qj8w-gfj5-8c6v (moderate), GHSA-m5mm-p8h7-m29v (low)
+    - diff: GHSA-73rr-hh4g-fpgx (low)
+    
+    npm audit: 18 -> 15 findings, no high or critical left. Verified with
+    npm run build, a syntax check of the minified bundles, and
+    npm run test:ci.
+    
+    * ci: pin GitHub Actions to commit SHAs
+    
+    The zizmor check fails on pull requests that change a workflow file
+    containing actions referenced by tag. Pin every action to the commit
+    its current tag points to, with the version in a comment, and give the
+    read-only workflows an explicit `contents: read` permission.
